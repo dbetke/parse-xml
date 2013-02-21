@@ -16,6 +16,7 @@
         function handleXML(xmlstring) {
 
             var xmldoc = $.parseXML(xmlstring);
+            var partialObjects = {};
             
             //add commas where necessary
             
@@ -84,8 +85,24 @@
                         var attrType = $(this).attr('type');
                         //check for annotation with type jstype, if exists replace attribute type
                         $(this).find('jstype').each(function(){
+                            var partial = $(this).attr('partial');
+                            var name = $(this).attr('name');
+                            var type = $(this).attr('type');
+                            var value = $(this).attr('value');
                             var newAttr = $(this).attr('type');
-                            attrType = $(this).attr('type');
+
+                            if(partial === 'true'){
+                                if (partialObjects[name] === undefined){
+                                    partialObjects[name] = {'type': [type], 'values': {}};
+                                    
+                                    console.log(partialObjects); 
+                                }                               
+                                
+                                partialObjects[name]['values'][value] = attrDefault;
+                            }
+                            else{
+                                attrType = $(this).attr('type');
+                            }
                         });
                                  
                         //save the name of the attribute 
@@ -132,9 +149,11 @@
                     return "";
                 }
             }
+
             var result = processComplexType($(xmldoc).find('group[name=GraphContent]'), 'foo');
             $('pre').append(result);
         }
+        
     });
     
 }(jQuery));
