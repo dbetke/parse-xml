@@ -23,36 +23,36 @@
             formatters = {
                 'xsd:string' : function(attr){return '"'  + attr + '"';},
                 'xsd:integer' : function(attr){return attr;},
-                'RGBColor' : function(attr){return 'function () { '
+                'RGBColor' : function(attr){return ('function () { '
                                             + 'return new window.multigraph.math.RGBColor.parse("' 
                                             + attr + '"); '
-                                            + '}';},
+                                            + '}');},
                 'Boolean' : function(attr){return '"'  + attr + '"';},
-                'DPoint' : function(attr){return 'function () { '
+                'DPoint' : function(attr){return ('function () { '
                                           + 'return new window.multigraph.math.Point(' 
                                           + attr.replace(' ', ',') + '); '
-                                          + '}';},
+                                          + '}');},
                 'Frame' : function(attr){return '"'  + attr + '"';},
                 'xsd:double' : function(attr){return attr;},
                 'DataType' : function(attr){return '"'  + attr + '"';},
-                'Displacement' : function(attr){return 'function () { '
+                'Displacement' : function(attr){return ('function () { '
                                                 + 'return new window.multigraph.math.Displacement(' 
                                                 + attr + '); '
-                                                + '}';},
-                'DPointOrNumber' : function(attr){return 'function () { '
+                                                + '}');},
+                'DPointOrNumber' : function(attr){return ('function () { '
                                                   + 'return new window.multigraph.math.Point(' 
                                                   + attr.replace(' ', ',') + '); '
-                                                  + '}';},
+                                                  + '}');},
                 'DataOrAutoValue' : function(attr){return '"'  + attr + '"';},
                 //TODO: determine how to format axis orientation, currently only undefined in defaults.js
                 'AxisOrientation' : function(attr){return attr;}, 
                 'DataValue' : function(attr){return '"'  + attr + '"';},
                 //TODO: determine how to format datameasure, currently only null in defaults.js
                 'DataMeasure' : function(attr){return attr;}, 
-                'RendererType' : function(attr){return 'function () { '
+                'RendererType' : function(attr){return ('function () { '
                                                 + 'window.multigraph.core.Renderer.Type.parse("' 
                                                 + attr + '"); '
-                                                + '}';}, //one of the defaults not showing up
+                                                + '}');}, //one of the defaults not showing up
                 'Comparator' : function(attr){return '"'  + attr + '"';},
                 'Insets' : function(attr){
                     if (typeof(attr)!=='object') {
