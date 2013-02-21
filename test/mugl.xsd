@@ -157,10 +157,34 @@
   </xsd:complexType>
 
   <xsd:complexType name="Plotarea">
-    <xsd:attribute name="marginbottom" type="xsd:integer" default="35"/>
-    <xsd:attribute name="marginleft"   type="xsd:integer" default="38"/>
-    <xsd:attribute name="margintop"    type="xsd:integer" default="10"/>
-    <xsd:attribute name="marginright"  type="xsd:integer" default="35"/>
+    <xsd:attribute name="marginbottom" type="xsd:integer" default="35">
+      <xsd:annotation>
+	<xsd:appinfo>
+	  <jstype type="Insets" partial="true" name="margin" value="bottom"/>
+	</xsd:appinfo>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="marginleft"   type="xsd:integer" default="38">
+      <xsd:annotation>
+	<xsd:appinfo>
+	  <jstype type="Insets" partial="true" name="margin" value="left"/>
+	</xsd:appinfo>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="margintop"    type="xsd:integer" default="10">
+      <xsd:annotation>
+	<xsd:appinfo>
+	  <jstype type="Insets" partial="true" name="margin" value="top"/>
+	</xsd:appinfo>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="marginright"  type="xsd:integer" default="35">
+      <xsd:annotation>
+	<xsd:appinfo>
+	  <jstype type="Insets" partial="true" name="margin" value="right"/>
+	</xsd:appinfo>
+      </xsd:annotation>
+    </xsd:attribute>
     <xsd:attribute name="border"       type="xsd:integer" default="0"/>
     <xsd:attribute name="bordercolor"  type="RGBColor"    default="0xeeeeee"/>
     <xsd:attribute name="color"        type="RGBColor"/>
