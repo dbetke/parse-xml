@@ -1,20 +1,11 @@
-
 (function ($) {
-//    "use strict";
+    "use strict";
     var indent = "  ";
 
     $(document).ready(function () {
-
-        $.ajax({
-            url : 'test/mugl.xsd',
-            dataType: 'text',
-            success: function (xmlstring) {
-                handleXML(xmlstring);
-            }
-        });
-
         function handleXML(xmlstring) {
             var xmldoc = $.parseXML(xmlstring),
+                result,
                 formatters = {
                     'xsd:string' : function (attr) {return '"'  + attr + '"'; },
                     'xsd:integer' : function (attr) {return attr; },
@@ -27,15 +18,11 @@
                     'Displacement' : function (attr) {return 'function () {return new window.multigraph.math.Displacement(' + attr + '); }'; },
                     'DPointOrNumber' : function (attr) {return 'function () {return new window.multigraph.math.Point(' + attr.replace(' ', ',') + '); }'; },
                     'DataOrAutoValue' : function (attr) {return '"'  + attr + '"'; },
-                    //TODO: determine how to format axis orientation, currently only undefined in defaults.js
-                    'AxisOrientation' : function (attr) {return attr; },
                     'DataValue' : function (attr) {return '"'  + attr + '"'; },
-                    //TODO: determine how to format datameasure, currently only null in defaults.js
-                    'DataMeasure' : function (attr) {return attr; },
                     'RendererType' : function (attr) {return 'function () {window.multigraph.core.Renderer.Type.parse("' + attr + '"); }'; },
                     'Comparator' : function (attr) {return '"'  + attr + '"'; },
                     'Insets' : function (attr) {
-                        if (typeof (attr) !== 'object') {
+                        if (typeof attr !== 'object') {
                             return 'function () {return new window.multigraph.math.Insets(/*top*/' + attr + ', /*left*/' + attr + ', /*bottom*/' + attr + ', /*right*/' + attr + '); }';
                         } else {
                             return 'function () {return new window.multigraph.math.Insets(/*top*/' + attr.values.top + ', /*left*/' + attr.values.left + ', /*bottom*/' + attr.values.bottom + ', /*right*/' + attr.values.right + '); }';
@@ -45,99 +32,111 @@
 
             function processComplexType(obj, name, prefix) {
                 var output = [],
-                    partialObjects = {};
+                    partialObjects = {},
+                    attrDefault,
+                    attrName,
+                    attrType,
+                    $jstype,
+                    jstypePartial,
+                    jstypeType,
+                    jstypeName,
+                    jstypeValue;
+
                 if (prefix === undefined) {
                     prefix = "";
                 }
 
                 //for each object with specified name, find the attribute
                 obj.find('attribute').each(function () {
-                    var attrDefault = $(this).attr('default');
-                    if(attrDefault !== undefined){
-                       var $jstype = $(this).find('jstype');
-                        attrName = $(this).attr('name'),
+                    attrDefault = $(this).attr('default');
+ 
+                   if ((attrDefault !== undefined) && (attrDefault !== 'unknown')) {
+                        $jstype = $(this).find('jstype');
+                        attrName = $(this).attr('name');
                         attrType = $(this).attr('type');
 
                         //check if jstype annotation
                         if ($jstype !== undefined && $jstype.length > 0) {
-                            var jstypePartial = $jstype.attr('partial'),
-                                jstypeType = $jstype.attr('type'),
-                                jstypeName = $jstype.attr('name'),
-                                jstypeValue = $jstype.attr('value');
+                            jstypePartial = $jstype.attr('partial');
+                            jstypeType = $jstype.attr('type');
+                            jstypeName = $jstype.attr('name');
+                            jstypeValue = $jstype.attr('value');
 
                             //check if partial
-                            if (jstypePartial === 'true') {   
+                            if (jstypePartial === 'true') {
                                 if (partialObjects[jstypeName] === undefined) {
-                                    partialObjects[jstypeName] = {'type': [jstypeType], 'values': {}};                                    
+                                    partialObjects[jstypeName] = {'type': [jstypeType], 'values': {}};
                                 }
                                 //save to partial objects
                                 partialObjects[jstypeName]['values'][jstypeValue] = attrDefault;
-                            } else{ 
+                            } else {
                                 //if jstype but not partial, save new jstype attrType for special formatting rules
                                 attrType = jstypeType;
-                                addOutput();
+                                try {
+                                    output.push(indent + prefix + '"' + attrName + '" : ' + formatters[attrType](attrDefault));
+                                } catch (e) {
+                                    console.log("ERROR: " + e + "\nattribute name = " + attrName + " attribute type = " + attrType + " attribute default " + attrDefault);
+                                }
                             }
-                        } 
-                        //if not jstype
-                        else {
-                            addOutput();
+                        } else {
+                            try {
+                                output.push(indent + prefix + '"' + attrName + '" : ' + formatters[attrType](attrDefault));
+                            } catch (err) {
+                                console.log("ERROR: " + err + "\nattribute name = " + attrName + " attribute type = " + attrType + " attribute default " + attrDefault);
+                            }
                         }
-
-                    //push output array
-                    function addOutput() {
-                        try {
-                            output.push(indent + prefix + '"' + attrName + '" : ' + formatters[attrType](attrDefault));
-                        } catch (e) {
-                            console.log("ERROR: " + e + "\nattribute name = " + attrName + " attribute type = " + attrType + " attribute default " + attrDefault);
-                        }
-                    }
-
-
                     }
                 });
-                
+
                 //find each element and process it (for the attribute name, type, and default)
                 obj.find('element').each(function () {
-                    var subObj;
+                    var subObj,
+                        subObjOutput;
                     try {
                         //if found, save subObj
                         subObj = $(xmldoc).find('complexType[name=' + $(this).attr('type') + ']');
-                    } 
-                    catch (e) {
+                    } catch (e) {
                         //else do nothing
                     }
                     if (subObj !== undefined) {
                         //process subObj for attribute name, type, and default
-                        var subObjOutput = processComplexType(subObj, $(this).attr('name'), indent+prefix); 
+                        subObjOutput = processComplexType(subObj, $(this).attr('name'), indent + prefix);
                         //test for blank string (instead of null value)
-                        if (subObjOutput !== "") { 
+                        if (subObjOutput !== "") {
                             output.push(subObjOutput);
                         }
                     }
                 });
-              
+
                 //adds partial objects to output
-                $.each(partialObjects, function(name, obj) {
+                $.each(partialObjects, function (name, obj) {
                     var type = obj.type;
                     output.push(indent + prefix + '"' + name + '" : ' + formatters[type](obj, obj.values));
                 });
 
                 //generate results if output array is not empty
-                if(output.length > 0) {
+                if (output.length > 0) {
                     return prefix + '"' +  name + '"' + " : {\n" + output.join(",\n") + "\n" + prefix + "}";
-                }
-                else{
+                } else {
                     return "";
                 }
 
             }//end process complex type
-            
-            var result = processComplexType($(xmldoc).find('group[name=GraphContent]'), 'foo');
+
+            result = processComplexType($(xmldoc).find('group[name=GraphContent]'), 'foo');
             $('pre').append(result);
 
 
-       } //end handleXML
-        
+        } //end handleXML
+
+        $.ajax({
+            url : 'test/mugl.xsd',
+            dataType: 'text',
+            success: function (xmlstring) {
+                handleXML(xmlstring);
+            }
+        });
+
     }); //end document.ready
-    
+
 }(jQuery));
