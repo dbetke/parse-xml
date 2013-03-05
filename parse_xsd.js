@@ -2,37 +2,18 @@
     "use strict";
     var fs     = require("fs"),
         page   = require("webpage").create(),
-        path   = "output/",
-        indent = "  ";
+        path   = "output/";
 
-    page.settings.localToRemoteUrlAccessEnabled = true;
-    page.settings.ignoreSslErrors = true;
-    
-    phantom.onError = function(msg, trace) {
-        var msgStack = ['PHANTOM ERROR: ' + msg];
-        if (trace) {
-            msgStack.push('TRACE:');
-            trace.forEach(function(t) {
-                msgStack.push(' -> ' + (t.file || t.sourceURL) + ': ' + t.line);
-            });
-        }
-        console.log(msgStack.join('\n'));
-        
-        // exit phantom on error
-        phantom.exit();
-    };
-    
+    var xmlstring = fs.read("test/mugl.xsd");
+
     page.onConsoleMessage = function (msg) {
         fs.makeTree(path);
-        console.log(msg)
-        console.log("Console Message")
+        console.log("Writing defaults.js")
         fs.write(path + "defaults.js", msg, "w");
     };
 
     page.includeJs("http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js", function () {
-        page.evaluateAsync(function () {
-//            console.log($)
-//            console.log($.ajax)
+        page.evaluate(function (xmlstring) {
             var formatters = {
                 'xsd:string'      : function (attr) {return '"'  + attr + '"'; },
                 'xsd:integer'     : function (attr) {return attr; },
@@ -55,10 +36,10 @@
                         return 'function () {return new window.multigraph.math.Insets(/*top*/' + attr.values.top + ', /*left*/' + attr.values.left + ', /*bottom*/' + attr.values.bottom + ', /*right*/' + attr.values.right + '); }';
                     }
                 }
-            };
+            },
+                indent = "  ";
 
             function handleXML(xmlstring) {
-                console.log("1")
                 var xmldoc = $.parseXML(xmlstring);
                 console.log(processComplexType(xmldoc, $(xmldoc).find('group[name=GraphContent]'), 'foo'));
             } //end handleXML
@@ -154,26 +135,13 @@
                 }
             }//end process complex type
 
-            $.ajax({
-                url      : 'test/mugl.xsd',
-                dataType : 'text',
-                success  : function (xmlstring) {
-                    console.log("2")
-                    handleXML(xmlstring);
-                },
-                error : function (jqXHR, textStatus, errorThrown) {
-                    console.log("error")
-                    console.log(textStatus)
-                    console.log(errorThrown)
-                }
-            });
-
-        });
+            handleXML(xmlstring);
+        }, xmlstring);
 
     });
 
     window.setTimeout(function () {
         phantom.exit();
-    }, 5000);
+    }, 2000);
 
 }());
