@@ -6,6 +6,11 @@
 
     var xmlstring = fs.read("test/mugl.xsd");
 
+    phantom.onError = function(msg, trace) {
+        console.log(msg);
+        phantom.exit(1);
+    };
+
     page.onConsoleMessage = function (msg) {
         fs.makeTree(path);
         console.log("Writing defaults.js")
@@ -89,14 +94,14 @@
                                 try {
                                     output.push(indent + prefix + '"' + attrName + '" : ' + formatters[attrType](attrDefault));
                                 } catch (e) {
-                                    console.log("ERROR: " + e + "\nattribute name = " + attrName + " attribute type = " + attrType + " attribute default " + attrDefault);
+                                    throw new Error("ERROR: " + e + "\nattribute name = " + attrName + " attribute type = " + attrType + " attribute default " + attrDefault);
                                 }
                             }
                         } else {
                             try {
                                 output.push(indent + prefix + '"' + attrName + '" : ' + formatters[attrType](attrDefault));
                             } catch (err) {
-                                console.log("ERROR: " + err + "\nattribute name = " + attrName + " attribute type = " + attrType + " attribute default " + attrDefault);
+                                throw new Error("ERROR: " + err + "\nattribute name = " + attrName + " attribute type = " + attrType + " attribute default " + attrDefault);
                             }
                         }
                     }
