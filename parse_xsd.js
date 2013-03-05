@@ -2,9 +2,10 @@
     "use strict";
     var fs     = require("fs"),
         page   = require("webpage").create(),
-        path   = "output/";
+        XSDPath = "test/mugl.xsd",
+        outputPath   = "output/";
 
-    var xmlstring = fs.read("test/mugl.xsd");
+    var xmlstring = fs.read(XSDPath);
 
     phantom.onError = function(msg, trace) {
         console.log(msg);
@@ -12,9 +13,9 @@
     };
 
     page.onConsoleMessage = function (msg) {
-        fs.makeTree(path);
+        fs.makeTree(outputPath);
         console.log("Writing defaults.js")
-        fs.write(path + "defaults.js", msg, "w");
+        fs.write(outputPath + "defaults.js", msg, "w");
     };
 
     page.includeJs("http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js", function () {
