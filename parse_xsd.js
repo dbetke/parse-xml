@@ -1,3 +1,4 @@
+/*global phantom, require */
 (function () {
     "use strict";
     var fs     = require("fs"),
