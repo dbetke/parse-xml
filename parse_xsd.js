@@ -1,10 +1,10 @@
 /*global phantom, require */
 (function () {
     "use strict";
-    var fs     = require("fs"),
-        page   = require("webpage").create(),
-        XSDPath = "test/mugl.xsd",
-        outputPath   = "output/";
+    var fs         = require("fs"),
+        page       = require("webpage").create(),
+        XSDPath    = "test/mugl.xsd",
+        outputPath = "output/";
 
     var xmlstring = fs.read(XSDPath);
 
@@ -44,7 +44,7 @@
                 }
             }
         },
-        indent = "  ";
+            indent = "  ";
 
         function handleXML(xmlstring) {
             var xmldoc = $.parseXML(xmlstring);
@@ -53,15 +53,15 @@
 
         function processComplexType(xmldoc, obj, name, prefix) {
             var output = [],
-            partialObjects = {},
-            attrDefault,
-            attrName,
-            attrType,
-            $jstype,
-            jstypePartial,
-            jstypeType,
-            jstypeName,
-            jstypeValue;
+                partialObjects = {},
+                attrDefault,
+                attrName,
+                attrType,
+                $jstype,
+                jstypePartial,
+                jstypeType,
+                jstypeName,
+                jstypeValue;
 
             if (prefix === undefined) {
                 prefix = "";
@@ -112,7 +112,7 @@
             //find each element and process it (for the attribute name, type, and default)
             obj.find('element').each(function () {
                 var subObj,
-                subObjOutput;
+                    subObjOutput;
                 try {
                     //if found, save subObj
                     subObj = $(xmldoc).find('complexType[name=' + $(this).attr('type') + ']');
