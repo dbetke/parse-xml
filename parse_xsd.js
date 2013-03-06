@@ -13,14 +13,8 @@
         phantom.exit(1);
     };
 
-    page.onConsoleMessage = function (msg) {
-        fs.makeTree(outputPath);
-        console.log("Writing defaults.js")
-        fs.write(outputPath + "defaults.js", msg, "w");
-    };
-
     page.injectJs("lib/jquery/jquery-1.8.2.js");
-    page.evaluate(function (xmlstring) {
+    var generateJSON = page.evaluate(function (xmlstring) {
         var formatters = {
             'xsd:string'      : function (attr) {return '"'  + attr + '"'; },
             'xsd:integer'     : function (attr) {return attr; },
@@ -48,7 +42,7 @@
 
         function handleXML(xmlstring) {
             var xmldoc = $.parseXML(xmlstring);
-            console.log(processComplexType(xmldoc, $(xmldoc).find('group[name=GraphContent]'), 'foo'));
+            return processComplexType(xmldoc, $(xmldoc).find('group[name=GraphContent]'), 'foo');
         } //end handleXML
 
         function processComplexType(xmldoc, obj, name, prefix) {
@@ -142,8 +136,13 @@
             }
         }//end process complex type
 
-        handleXML(xmlstring);
+        return handleXML(xmlstring);
     }, xmlstring);
+
+    //writes output
+    fs.makeTree(outputPath);
+    console.log("Writing defaults.js")
+    fs.write(outputPath + "defaults.js", generateJSON, "w");
 
     window.setTimeout(function () {
         phantom.exit();
