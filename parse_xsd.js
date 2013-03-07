@@ -90,14 +90,14 @@
                             try {
                                 output.push(indent + prefix + '"' + attrName + '" : ' + formatters[attrType](attrDefault));
                             } catch (e) {
-                                throw new Error("ERROR: " + e + "\nattribute name = " + attrName + " attribute type = " + attrType + " attribute default " + attrDefault);
+                                throw new Error("No formatter available for type '" + attrType + "'");
                             }
                         }
                     } else {
                         try {
                             output.push(indent + prefix + '"' + attrName + '" : ' + formatters[attrType](attrDefault));
                         } catch (err) {
-                            throw new Error("ERROR: " + err + "\nattribute name = " + attrName + " attribute type = " + attrType + " attribute default " + attrDefault);
+                            throw new Error("No formatter available for type '" + attrType + "'");
                         }
                     }
                 }
